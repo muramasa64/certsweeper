@@ -17,12 +17,30 @@ module Certsweeper
     def list
       Enumerator.new do |y|
         @iam.server_certificates.each do |cert|
-          t = cert.server_certificate_metadata.expiration
-          if expired?(t) && (not use_by_elb?(cert))
-            y << cert.server_certificate_metadata
+          if expired?(cert) && (not use_by_elb?(cert))
+            y << cert
           end
         end
       end
+    end
+
+    def remove_all
+      removed_cert_name = []
+      list.each do |cert|
+        cert.delete unless @cli_options[:dry_run]
+        removed_cert_name << cert.server_certificate_metadata.server_certificate_name
+      end
+      removed_cert_name
+    end
+
+    def remove(cert_name)
+      list.each do |cert|
+        if cert.server_certificate_metadata.server_certificate_name == cert_name
+          cert.delete unless @cli_options[:dry_run]
+          return [cert.server_certificate_metadata.server_certificate_name]
+        end
+      end
+      []
     end
 
     private
@@ -42,8 +60,8 @@ module Certsweeper
       @elbs ||= @elb.describe_load_balancers.load_balancer_descriptions
     end
 
-    def expired?(cert_expiration)
-      cert_expiration < now
+    def expired?(cert)
+      cert.server_certificate_metadata.expiration < now
     end
 
     def now
