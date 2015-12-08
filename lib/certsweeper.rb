@@ -1,5 +1,3 @@
 require "certsweeper/version"
-
-module Certsweeper
-  # Your code goes here...
-end
+require "certsweeper/cli"
+require "certsweeper/client"
