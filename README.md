@@ -1,28 +1,57 @@
 # Certsweeper
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/certsweeper`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Certsweeper is clean up expired server certificates uploaded to AWS.
 
 ## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'certsweeper'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
 
     $ gem install certsweeper
 
 ## Usage
 
-TODO: Write usage instructions here
+list expired server certificats
+
+```
+$ certsweeper list --profile `your_aws_profile`
+www.example.com-20150708	2015-08-10 06:31:12 UTC
+www.example.com-20150808	2015-09-10 06:31:12 UTC
+www.example.com-20150908	2015-10-10 06:31:12 UTC
+www.example.com-20151008	2015-11-10 06:31:12 UTC
+```
+
+remove expired server certificates
+
+```
+$ certsweeper remove --profile `your_aws_profile` --all
+remove: www.example.com-20150708
+remove: www.example.com-20150808
+remove: www.example.com-20150908
+remove: www.example.com-20151008
+```
+
+remove one's
+
+```
+$ certsweeper remove --profile `your_aws_profile` --certificate-name www.example.com-20150708
+remove: www.example.com-20150708
+```
+
+get help
+
+```
+$ certsweeper help
+Commands:
+  certsweeper help [COMMAND]  # Describe available commands or one specific command
+  certsweeper list            # List expired and not assigned server certificates
+  certsweeper remove          # Remove expired and not assignd server certificates
+
+Options:
+  p, [--profile=PROFILE]                                   # Load credentials by profile name from shared credentials file.
+  k, [--access-key-id=ACCESS_KEY_ID]                       # AWS access key id.
+  s, [--secret-access-key=SECRET_ACCESS_KEY]               # AWS secret access key.
+  r, [--region=REGION]                                     # AWS region.
+      [--shared-credentials-path=SHARED_CREDENTIALS_PATH]  # AWS shared credentials path.
+  v, [--verbose], [--no-verbose]
+```
 
 ## Development
 
