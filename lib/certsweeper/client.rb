@@ -9,9 +9,9 @@ module Certsweeper
       @logger ||= Logger.new STDOUT
 
       aws_configuration[:logger] = Logger.new STDOUT if @cli_options.verbose
+      @aws_configuration = aws_configuration
 
       @iam = Aws::IAM::Resource.new aws_configuration
-      @elb = Aws::ElasticLoadBalancing::Client.new aws_configuration
     end
 
     def list
@@ -57,7 +57,19 @@ module Certsweeper
     end
 
     def elbs
-      @elbs ||= @elb.describe_load_balancers.load_balancer_descriptions
+      unless @elbs
+        ec2 = Aws::EC2::Client.new @aws_configuration
+        regions = ec2.describe_regions[:regions].map {|r| r[:region_name]}
+        @elbs = []
+        regions.each do |r|
+          conf = @aws_configuration.dup
+          conf[:region] = r
+          elb_client = Aws::ElasticLoadBalancing::Client.new conf
+          e = elb_client.describe_load_balancers
+          @elbs += e.load_balancer_descriptions unless e.empty?
+        end
+      end
+      @elbs
     end
 
     def expired?(cert)
